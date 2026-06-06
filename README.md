@@ -2,6 +2,18 @@
 
 A personal budgeting companion that grows with you — from simple shopping lists to full expense tracking.
 
+## Table of Contents
+
+- [Vision](#vision)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Adding Android (later)](#adding-android-later)
+- [Scripts](#scripts)
+- [Homepage UX Design](#homepage-ux-design)
+- [Budgeting View UX Design (Person Detail)](#budgeting-view-ux-design-person-detail)
+- [License](#license)
+
 ## Vision
 
 Smeckles starts as a straightforward way to manage **persons** and their **shopping lists**. Each person can have multiple lists, and lists can be created, viewed, updated, and removed over time.
