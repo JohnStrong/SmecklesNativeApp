@@ -46,6 +46,56 @@ npx cap open android
 | `npm run build` | Production build to `dist/` |
 | `npm run preview` | Preview production build locally |
 
+## Homepage UX Design
+
+### Condition 1: New to app (no persons exist)
+
+Centered layout, vertically middle of screen. Single prompt to identify the user.
+
+```
+┌───────────────────────────────┐
+│                               │
+│                               │
+│                               │
+│        Who are you?           │
+│                               │
+│     ┌───────────────────┐     │
+│     │ Enter your name   │     │
+│     └───────────────────┘     │
+│                               │
+│       [ Get Started ]         │
+│                               │
+│                               │
+│                               │
+└───────────────────────────────┘
+```
+
+### Condition 2: Persons already exist
+
+Header with app title. Tappable list of persons leading into their budgeting/shopping lists. Smaller input at bottom to add new persons.
+
+```
+┌───────────────────────────────┐
+│ Smeckles                      │
+├───────────────────────────────┤
+│                               │
+│ ┌───────────────────────┐     │
+│ │ Alice               ▸ │     │
+│ └───────────────────────┘     │
+│ ┌───────────────────────┐     │
+│ │ Bob                 ▸ │     │
+│ └───────────────────────┘     │
+│ ┌───────────────────────┐     │
+│ │ Charlie             ▸ │     │
+│ └───────────────────────┘     │
+│                               │
+│                               │
+│ ┌────────────────┐  [+]       │
+│ │ Add a person   │            │
+│ └────────────────┘            │
+└───────────────────────────────┘
+```
+
 ## License
 
 MIT — see [LICENSE](./LICENSE).
