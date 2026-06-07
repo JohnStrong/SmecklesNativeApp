@@ -10,8 +10,7 @@ A personal budgeting companion that grows with you — from simple shopping list
 - [Getting Started](#getting-started)
 - [Adding Android (later)](#adding-android-later)
 - [Scripts](#scripts)
-- [Homepage UX Design](#homepage-ux-design)
-- [Budgeting View UX Design (Person Detail)](#budgeting-view-ux-design-person-detail)
+- [Design](#design)
 - [Testing](#testing)
 - [License](#license)
 
@@ -59,11 +58,29 @@ npx cap open android
 | `npm run build` | Production build to `dist/` |
 | `npm run preview` | Preview production build locally |
 
-## Homepage UX Design (Persons)
+## Design
+
+### Colour Palette
+
+| Role | Hex | Usage |
+|------|-----|-------|
+| Page base | `#FAFAFA` | Off-white background |
+| Card base | `#FFFFFF` | List items, cards |
+| Primary / Add | `#00897B` | Add buttons, positive actions (teal) |
+| Danger / Remove | `#E53935` | Remove buttons, destructive actions (coral red) |
+| Accent / Attention | `#F57C00` | Cost pills, highlights, badges (tangerine) |
+| Text primary | `#212121` | Headings, body text (charcoal) |
+| Text secondary | `#757575` | Subtitles, hints (slate grey) |
+| Border | `#E0E0E0` | Card borders, dividers (light grey) |
+| Hover | `#FFF8E1` | Item hover states (warm cream) |
+
+### Mockups
+
+#### Homepage (Persons)
 
 > **Implementation:** [`src/pages/PersonsPage.tsx`](./src/pages/PersonsPage.tsx)
 
-### Condition 1: New to app (no persons exist)
+##### Condition 1: New to app (no persons exist)
 
 Centered layout, offset from top (~10vh). Single prompt with "Add" button.
 
@@ -84,7 +101,7 @@ Centered layout, offset from top (~10vh). Single prompt with "Add" button.
 └───────────────────────────────┘
 ```
 
-### Condition 2: Persons already exist
+##### Condition 2: Persons already exist
 
 Header with app title. List of persons with a remove (`-`) button per row. Input and "Add" button at the bottom.
 
@@ -109,11 +126,11 @@ Header with app title. List of persons with a remove (`-`) button per row. Input
 └───────────────────────────────┘
 ```
 
-## Budgeting View UX Design (Person Detail)
+#### Budgeting View (Person Detail)
 
 After selecting a person from the homepage, the user enters the budgeting view.
 
-### Layout
+##### Layout
 
 - **Header** — full width, app title "Smeckles"
 - **Left side-nav bar** (collapsible) — ~30% width
@@ -125,7 +142,7 @@ After selecting a person from the homepage, the user enters the budgeting view.
   - List of shopping lists below the breadcrumb
 - **Footer** — full width, small text (e.g. "© Smeckles 2026")
 
-### Shopping List Cards
+##### Shopping Lists View
 
 Each shopping list is displayed as a bordered card with padding between cards:
 
@@ -138,14 +155,7 @@ Each shopping list is displayed as a bordered card with padding between cards:
 - Clear border separating each card
 - Generous padding between cards
 
-### Colour Notes
-
-- Card base: white or light-grey
-- Cost pill: **accent colour** (tangerine/warm orange) — must contrast clearly against the card base to draw the eye to the expense total
-- Frequency pills: green (Daily), blue (Weekly), purple (Monthly)
-- Item pills: colour-coded per item category (palette TBD)
-
-### ASCII Mockup: Budgeting View (Shopping Lists — side-nav open)
+##### Side-nav open
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
@@ -184,7 +194,7 @@ Each shopping list is displayed as a bordered card with padding between cards:
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-### ASCII Mockup: Side-nav collapsed
+##### Side-nav collapsed
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
@@ -212,7 +222,7 @@ Each shopping list is displayed as a bordered card with padding between cards:
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-### Notes
+##### Notes
 
 - Cost pill (e.g. `€24.50`) uses accent colour (tangerine) against card base (white/light-grey) — the accent must pop visually as it's the key financial info at a glance
 - `... more` indicates the card is expandable; clicking the card reveals all items
