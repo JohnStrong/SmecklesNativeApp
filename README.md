@@ -12,6 +12,7 @@ A personal budgeting companion that grows with you — from simple shopping list
 - [Scripts](#scripts)
 - [Homepage UX Design](#homepage-ux-design)
 - [Budgeting View UX Design (Person Detail)](#budgeting-view-ux-design-person-detail)
+- [Testing](#testing)
 - [License](#license)
 
 ## Vision
@@ -58,15 +59,16 @@ npx cap open android
 | `npm run build` | Production build to `dist/` |
 | `npm run preview` | Preview production build locally |
 
-## Homepage UX Design
+## Homepage UX Design (Persons)
+
+> **Implementation:** [`src/pages/PersonsPage.tsx`](./src/pages/PersonsPage.tsx)
 
 ### Condition 1: New to app (no persons exist)
 
-Centered layout, vertically middle of screen. Single prompt to identify the user.
+Centered layout, offset from top (~10vh). Single prompt with "Add" button.
 
 ```
 ┌───────────────────────────────┐
-│                               │
 │                               │
 │                               │
 │        Who are you?           │
@@ -75,7 +77,7 @@ Centered layout, vertically middle of screen. Single prompt to identify the user
 │     │ Enter your name   │     │
 │     └───────────────────┘     │
 │                               │
-│       [ Get Started ]         │
+│     [ Add                  ]  │
 │                               │
 │                               │
 │                               │
@@ -84,27 +86,26 @@ Centered layout, vertically middle of screen. Single prompt to identify the user
 
 ### Condition 2: Persons already exist
 
-Header with app title. Tappable list of persons leading into their budgeting/shopping lists. Smaller input at bottom to add new persons.
+Header with app title. List of persons with a remove (`-`) button per row. Input and "Add" button at the bottom.
 
 ```
 ┌───────────────────────────────┐
 │ Smeckles                      │
 ├───────────────────────────────┤
 │                               │
-│ ┌───────────────────────┐     │
-│ │ Alice               ▸ │     │
-│ └───────────────────────┘     │
-│ ┌───────────────────────┐     │
-│ │ Bob                 ▸ │     │
-│ └───────────────────────┘     │
-│ ┌───────────────────────┐     │
-│ │ Charlie             ▸ │     │
-│ └───────────────────────┘     │
+│ ┌───────────────────────────┐ │
+│ │ Alice                 [-] │ │
+│ └───────────────────────────┘ │
+│ ┌───────────────────────────┐ │
+│ │ Bob                   [-] │ │
+│ └───────────────────────────┘ │
+│ ┌───────────────────────────┐ │
+│ │ Charlie               [-] │ │
+│ └───────────────────────────┘ │
 │                               │
-│                               │
-│ ┌────────────────┐  [+]       │
-│ │ Add a person   │            │
-│ └────────────────┘            │
+│ ┌──────────────────┐  [Add]   │
+│ │ Enter your name  │          │
+│ └──────────────────┘          │
 └───────────────────────────────┘
 ```
 
@@ -218,6 +219,18 @@ Each shopping list is displayed as a bordered card with padding between cards:
 - "Next due" text derived from scheduling metadata persisted with each shopping list; the service returns the raw schedule and the frontend computes a human-friendly message
 - Breadcrumb supports navigation back to: all persons, selected person's expenses, or sub-pages when viewing a detailed shopping list breakdown (detail view UX TBD)
 - Side-nav collapse toggle is the `≡` icon
+
+## Testing
+
+Tests use [Vitest](https://vitest.dev/) with [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/).
+
+| Command | Description |
+|---------|-------------|
+| `npm test` | Run tests in watch mode |
+| `npm test -- --run` | Single test run (no watch) |
+| `npm run build` | Run tests + compile + bundle (fails if tests fail) |
+
+Test files live alongside their components with a `.test.tsx` suffix (e.g. `src/pages/PersonsPage.test.tsx`).
 
 ## License
 

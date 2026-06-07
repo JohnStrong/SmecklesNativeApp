@@ -1,0 +1,92 @@
+import { useState } from 'react';
+import { 
+  IonContent,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonButton
+} from '@ionic/react';
+
+const _contentPadding = {
+    '--padding-start': '1.5rem',
+    '--padding-end': '1.5rem',
+    '--padding-top': '1.5rem',
+    '--padding-bottom': '1.5rem',
+     '--background': '#FAFAFA'
+} as React.CSSProperties;
+
+const _listItem = {
+  '--background': '#FFFFFF',
+  '--background-hover': '#FFF8E1',
+  '--border-style': 'none',
+  '--ion-item-background': 'transparent',
+  border: '1px solid #E0E0E0',
+  borderRadius: '8px',
+  marginBottom: '0.5rem',
+  overflow: 'hidden',
+} as React.CSSProperties;
+
+const addBtn = {
+    '--background': '#00897B',
+    '--background-hover': '#00695C',
+    '--color': '#FFFFFF',
+} as React.CSSProperties;
+
+const removeBtn = {
+  '--background': '#E53935',
+  '--background-hover': '#C62828',
+  '--color': '#FFFFFF',
+} as React.CSSProperties;
+
+
+const PersonsPage: React.FC = () => {
+    const [persons, setPersons] = useState<string[]>([]);
+    const [name, setName] = useState('');
+
+    const addPerson = () => {
+      const trimmed = name.trim();
+      if (!trimmed) return // empty input/whitespace 
+      setPersons(prev => [...prev, trimmed]);
+      setName('');
+    }
+
+    const removePerson = (index: number) => {
+      setPersons(prev => [...prev.slice(0, index), ...prev.slice(index + 1)]);
+    }
+
+    if (persons.length === 0) {
+      // no person(s) added yet
+      return (
+        <IonContent style={_contentPadding} className="ion-text-center">
+          <div className="ion-margin-top" style={{ marginTop: '10vh' }}>
+            <h2>Who are you?</h2>
+            <form onSubmit={e => { e.preventDefault(); addPerson(); }}>
+              <IonInput placeholder="Enter your name" value={name} onIonInput={e => setName(e.detail.value ?? '')} />
+              <IonButton expand="block" style={addBtn} onClick={addPerson}>Add</IonButton>
+            </form>
+          </div>
+        </IonContent>
+      );
+    }
+
+    return (
+      <IonContent style={_contentPadding}>
+        <IonList style={{ background: 'transparent' }}>
+          {persons.map((person, index) => (
+            <IonItem key={person} button style={_listItem}>
+              <IonLabel>{person}</IonLabel>
+              <IonButton slot="end" onClick={() => removePerson(index)} style={removeBtn}>-</IonButton>
+            </IonItem>
+          ))}
+        </IonList>
+        <form onSubmit={e => { e.preventDefault(); addPerson(); }} style={{ display: 'flex', gap: '0.5rem' }}>
+          <IonInput placeholder="Enter your name" value={name} onIonInput={e => setName(e.detail.value ?? '')} />
+          <IonButton onClick={addPerson} style={addBtn}>Add</IonButton>
+        </form>
+      </IonContent>
+    );
+}
+
+export default PersonsPage;
+

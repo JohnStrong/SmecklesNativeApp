@@ -1,6 +1,8 @@
 import React from 'react';
 import { IonApp, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/react';
 
+import PersonsPage from './pages/PersonsPage';
+
 const App: React.FC = () => (
   <IonApp>
     <IonHeader>
@@ -8,9 +10,7 @@ const App: React.FC = () => (
         <IonTitle>Smeckles</IonTitle>
       </IonToolbar>
     </IonHeader>
-    <IonContent className="ion-padding">
-      <p>Welcome to Smeckles — your personal budgeting companion.</p>
-    </IonContent>
+    <PersonsPage />
   </IonApp>
 );
 
