@@ -144,6 +144,8 @@ After selecting a person from the homepage, the user enters the budgeting view.
 
 ##### Shopping Lists View
 
+> **Implementation:** [`src/pages/views/ShoppingListsView.tsx`](./src/pages/views/ShoppingListsView.tsx)
+
 Each shopping list is displayed as a bordered card with padding between cards:
 
 - **List name** as card title (left-aligned)

@@ -5,8 +5,13 @@ import {
   IonItem,
   IonLabel,
   IonInput,
-  IonButton
+  IonButton,
+  IonPage,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
 } from '@ionic/react';
+import { useHistory } from 'react-router-dom';
 
 const _contentPadding = {
     '--padding-start': '1.5rem',
@@ -43,6 +48,7 @@ const removeBtn = {
 const PersonsPage: React.FC = () => {
     const [persons, setPersons] = useState<string[]>([]);
     const [name, setName] = useState('');
+    const history = useHistory(); // for view routing
 
     const addPerson = () => {
       const trimmed = name.trim();
@@ -58,33 +64,47 @@ const PersonsPage: React.FC = () => {
     if (persons.length === 0) {
       // no person(s) added yet
       return (
-        <IonContent style={_contentPadding} className="ion-text-center">
-          <div className="ion-margin-top" style={{ marginTop: '10vh' }}>
-            <h2>Who are you?</h2>
-            <form onSubmit={e => { e.preventDefault(); addPerson(); }}>
-              <IonInput placeholder="Enter your name" value={name} onIonInput={e => setName(e.detail.value ?? '')} />
-              <IonButton expand="block" style={addBtn} onClick={addPerson}>Add</IonButton>
-            </form>
-          </div>
-        </IonContent>
+        <IonPage>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>Smeckles</IonTitle>
+            </IonToolbar>
+         </IonHeader>
+          <IonContent style={_contentPadding} className="ion-text-center">
+            <div className="ion-margin-top" style={{ marginTop: '10vh' }}>
+              <h2>Who are you?</h2>
+              <form onSubmit={e => { e.preventDefault(); addPerson(); }}>
+                <IonInput placeholder="Enter your name" value={name} onIonInput={e => setName(e.detail.value ?? '')} />
+                <IonButton expand="block" style={addBtn} onClick={addPerson}>Add</IonButton>
+              </form>
+            </div>
+          </IonContent>
+        </IonPage>
       );
     }
 
     return (
-      <IonContent style={_contentPadding}>
-        <IonList style={{ background: 'transparent' }}>
-          {persons.map((person, index) => (
-            <IonItem key={person} button style={_listItem}>
-              <IonLabel>{person}</IonLabel>
-              <IonButton slot="end" onClick={() => removePerson(index)} style={removeBtn}>-</IonButton>
-            </IonItem>
-          ))}
-        </IonList>
-        <form onSubmit={e => { e.preventDefault(); addPerson(); }} style={{ display: 'flex', gap: '0.5rem' }}>
-          <IonInput placeholder="Enter your name" value={name} onIonInput={e => setName(e.detail.value ?? '')} />
-          <IonButton onClick={addPerson} style={addBtn}>Add</IonButton>
-        </form>
-      </IonContent>
+      <IonPage>
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>Smeckles</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent style={_contentPadding}>
+          <IonList style={{ background: 'transparent' }}>
+            {persons.map((person, index) => (
+              <IonItem key={person} button style={_listItem} onClick={() => history.push(`/person/${person}`)}>
+                <IonLabel>{person}</IonLabel>
+                <IonButton slot="end" onClick={(e) => { e.stopPropagation(); removePerson(index); }} style={removeBtn}>-</IonButton>
+              </IonItem>
+            ))}
+          </IonList>
+          <form onSubmit={e => { e.preventDefault(); addPerson(); }} style={{ display: 'flex', gap: '0.5rem' }}>
+            <IonInput placeholder="Enter your name" value={name} onIonInput={e => setName(e.detail.value ?? '')} />
+            <IonButton onClick={addPerson} style={addBtn}>Add</IonButton>
+          </form>
+        </IonContent>
+      </IonPage>  
     );
 }
 
