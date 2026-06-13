@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vitest run && tsc && vite build",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "deploy": "npm run build && firebase deploy --only hosting",
+    "undeploy": "bash bin/undeploy.sh"
   },
   "license": "MIT",
   "dependencies": {
@@ -15,6 +17,7 @@
     "@capacitor/core": "^6.2.1",
     "@ionic/react": "^7.8.6",
     "@ionic/react-router": "^7.8.6",
+    "firebase": "^12.14.0",
     "ionicons": "^7.4.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

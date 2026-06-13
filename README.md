@@ -10,6 +10,8 @@ A personal budgeting companion that grows with you — from simple shopping list
 - [Getting Started](#getting-started)
 - [Adding Android (later)](#adding-android-later)
 - [Scripts](#scripts)
+- [Authentication](#authentication)
+- [Deployment](#deployment)
 - [Design](#design)
 - [Testing](#testing)
 - [License](#license)
@@ -57,6 +59,88 @@ npx cap open android
 | `npm run dev` | Start Vite dev server |
 | `npm run build` | Production build to `dist/` |
 | `npm run preview` | Preview production build locally |
+| `npm run deploy` | Build and deploy webapp to Firebase Hosting |
+| `npm run undeploy` | Take down hosted site (requires confirmation phrase) |
+
+## Authentication
+
+### Overview
+
+The app uses Firebase Authentication with Google sign-in to gate access. The auth layer is decoupled from the business logic via an adapter pattern, allowing the provider to be swapped without changing UI or page components.
+
+### Architecture
+
+```
+App.tsx
+  └─ AuthProvider (adapter={firebaseAuthAdapter})
+       └─ AuthGate (blocks rendering until signed in)
+            └─ IonReactRouter (app routes)
+```
+
+### How It Works
+
+1. `AuthProvider` wraps the app and accepts an `AuthAdapter` — currently wired to Firebase
+2. `AuthGate` consumes the auth context via `useAuth()` hook
+3. If no user is authenticated, AuthGate renders a "Sign in with Google" button
+4. On successful sign-in, the app renders normally
+5. The authenticated user's ID token can be passed to the backend via `user.token()`
+
+### File Structure
+
+| File | Purpose |
+|------|---------|
+| `src/auth/types.ts` | `AuthUser` and `AuthAdapter` interfaces |
+| `src/auth/AuthProvider.tsx` | React context provider + `useAuth()` hook |
+| `src/auth/AuthGate.tsx` | Login gate component |
+| `src/auth/adapters/firebaseAuth.ts` | Firebase implementation of `AuthAdapter` |
+| `src/config/firebase.ts` | Firebase app initialisation and exports |
+
+### Switching Auth Provider
+
+To replace Firebase with another provider (e.g. Auth0, Cognito):
+
+1. Create a new adapter in `src/auth/adapters/` implementing `AuthAdapter`
+2. Change the import in `App.tsx` to use the new adapter
+3. No other files need to change
+
+### Troubleshooting
+
+#### `CONFIGURATION_NOT_FOUND` error on sign-in
+
+**Cause:** Firebase Authentication has not been enabled for the project.
+
+**Fix:**
+1. Go to Firebase Console → your project → **Authentication** → **Get started**
+2. Select **Google** as a sign-in provider → **Enable** → set support email → **Save**
+
+#### Sign-in popup opens and closes immediately
+
+**Cause:** The `apiKey` or `projectId` in `src/config/firebase.ts` doesn't match the Firebase project where auth is enabled.
+
+**Fix:**
+1. Run `firebase apps:sdkconfig WEB --project <your-project-id>` to get the correct config
+2. Compare with `src/config/firebase.ts` and update any mismatched values
+3. Verify your project ID with `firebase projects:list`
+
+#### Auth still fails after enabling / config change
+
+**Cause:** Browser has cached the old Firebase auth state.
+
+**Fix:**
+1. Hard refresh the browser: `Cmd + Shift + R` (Mac) / `Ctrl + Shift + R` (Windows/Linux)
+2. Click "Sign in with Google" again
+
+## Deployment
+
+Deploy the static site to Firebase Hosting:
+
+```bash
+npm run deploy
+```
+
+The app is accessible at `https://smeckles-app-11ca3.web.app`.
+
+Firebase automatically authorises `.web.app` and `.firebaseapp.com` domains for Google sign-in.
 
 ## Design
 
