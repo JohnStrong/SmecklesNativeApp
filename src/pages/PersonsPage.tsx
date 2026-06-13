@@ -58,6 +58,7 @@ const PersonsPage: React.FC = () => {
       right<string, string>(name.trim())
         .filter((value: string) => value.length > 0,  "cannot be empty - Please enter a valid email address")
         .filter((value: string) =>  EMAIL_REGEX.test(value), "invalid pattern - Please enter a valid email address")
+        .filter((value: string) => !persons.includes(value), "email already exists")
         .onLeft((error) => setEmailError(error))
         .onRight((value) => { setPersons(prev => [...prev, value]); setName(''); setEmailError(''); });
      };

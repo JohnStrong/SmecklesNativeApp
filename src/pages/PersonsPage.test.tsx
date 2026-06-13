@@ -100,6 +100,17 @@
         expect(screen.getByText('invalid pattern - Please enter a valid email address')).toBeInTheDocument();
     });
 
+    it('shows error when adding duplicate email', () => {
+        render(<PersonsPage />);
+        _fireAddPersonEvent('john@test.com');
+        expect(screen.queryByText('email already exists')).not.toBeInTheDocument();
+
+        _fireAddPersonEvent('john@test.com');
+
+        expect(screen.getByText('email already exists')).toBeInTheDocument();
+        expect(screen.getAllByText('john@test.com')).toHaveLength(1);
+    });
+
     const _fireAddPersonEvent = (email: string) => {
         const input = screen.getByPlaceholderText('Enter your email');
         fireEvent(input, new CustomEvent('ionInput', { detail: { value: email } }));
