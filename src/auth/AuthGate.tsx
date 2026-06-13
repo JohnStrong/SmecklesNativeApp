@@ -1,14 +1,17 @@
 /**
- * AuthGate — renders children only when the user is authenticated.
+ * AuthGate — renders children only when the user is authenticated
+ * and their email is in the allow list.
  *
- * If no user is signed in, displays a "Sign in with Google" button.
- * Used in App.tsx to wrap all routes, preventing unauthenticated access.
+ * If not signed in, displays "Sign in with Google".
+ * If signed in but not allowed, signs out and shows "Access denied".
  */
 import { IonButton, IonContent, IonPage } from '@ionic/react';
 import { useAuth } from './AuthProvider';
+import appConfig from '../config/appConfig';
 
 const AuthGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, signIn } = useAuth();
+  const { user, signIn, signOut } = useAuth();
+
   if (!user) return (
     <IonPage>
       <IonContent className="ion-text-center ion-padding">
@@ -17,6 +20,18 @@ const AuthGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </IonContent>
     </IonPage>
   );
+
+  if (!appConfig.auth.allowList.includes(user.email)) {
+    signOut();
+    return (
+      <IonPage>
+        <IonContent className="ion-text-center ion-padding">
+          <p>Access denied</p>
+        </IonContent>
+      </IonPage>
+    );
+  }
+
   return <>{children}</>;
 };
 
