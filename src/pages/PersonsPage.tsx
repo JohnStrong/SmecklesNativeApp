@@ -12,8 +12,7 @@ import {
   IonTitle,
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
-import { ValidationRules, withValidation } from '../validation/ValidationRule';
-import { fold } from '../util/Either';
+import { fold, right } from '../util/Either';
 
 const _contentPadding = {
     '--padding-start': '1.5rem',
@@ -48,17 +47,6 @@ const removeBtn = {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const rulesMap = {
-  _nonNullRule: (value: string) => !value ? "no leading/trailing whitespace" : null,
-  _validateEmailRule: (value: string) => EMAIL_REGEX.test(value) ? null :  "Please enter a valid email address",
-};
-const _validationRules: ValidationRules = {
-  rules: [
-    rulesMap._nonNullRule,
-    rulesMap._validateEmailRule
-  ]
-};
-
 
 const PersonsPage: React.FC = () => {
     const [persons, setPersons] = useState<string[]>([]);
@@ -67,12 +55,12 @@ const PersonsPage: React.FC = () => {
     const history = useHistory(); // for view routing
 
      const addPerson = () => {
-      fold(
-        withValidation(name.trim(), _validationRules),
-        (error) => setEmailError(error),
-        (value) => { setPersons(prev => [...prev, value]); setName(''); setEmailError(''); }
-      );
-    };
+      right<string, string>(name.trim())
+        .filter((value: string) => !value,  "no leading/trailing whitespace")
+        .filter((value: string) =>  EMAIL_REGEX.test(value), "Please enter a valid email address")
+        .onLeft((error) => setEmailError(error))
+        .onRight((value) => { setPersons(prev => [...prev, value]); setName(''); setEmailError(''); });
+     };
 
     const removePerson = (index: number) => {
       setPersons(prev => [...prev.slice(0, index), ...prev.slice(index + 1)]);

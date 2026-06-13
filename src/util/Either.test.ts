@@ -1,28 +1,64 @@
-import { describe, it, expect } from 'vitest';
-import { Either, fold } from './Either';
+import { describe, it, expect, vi } from 'vitest';
+import { left, right } from './Either';
 
-describe('Either', () => {
-  it('represents a left value', () => {
-    const left: Either<string, number> = { tag: 'left', error: 'fail' };
-    expect(left.tag).toBe('left');
-    expect(left.error).toBe('fail');
-  });
-
-  it('represents a right value', () => {
-    const right: Either<string, number> = { tag: 'right', value: 42 };
-    expect(right.tag).toBe('right');
-    expect(right.value).toBe(42);
+describe('right', () => {
+  it('creates an Either with tag right', () => {
+    const e = right<string, number>(42);
+    expect(e._tag).toBe('right');
   });
 });
 
-describe('fold', () => {
-  it('transforms left via onLeft', () => {
-    const result = fold<string, string, number>({ tag: 'left', error: 'x' }, () => 0, () => 1);
-    expect(result).toBe(0);
+describe('left', () => {
+  it('creates an Either with tag left', () => {
+    const e = left<string, number>('err');
+    expect(e._tag).toBe('left');
+  });
+});
+
+describe('filter', () => {
+  it('stays right when predicate passes', () => {
+    const fn = vi.fn();
+    right<string, string>('a@b.c').filter(v => v.includes('@'), 'fail').onRight(fn);
+    expect(fn).toHaveBeenCalledWith('a@b.c');
   });
 
-  it('transforms right via onRight', () => {
-    const result = fold<string, string, number>({ tag: 'right', value: 'x' }, () => 0, () => 1);
-    expect(result).toBe(1);
+  it('becomes left when predicate fails', () => {
+    const fn = vi.fn();
+    right<string, string>('bad').filter(v => v.includes('@'), 'no @').onLeft(fn);
+    expect(fn).toHaveBeenCalledWith('no @');
+  });
+
+  it('short-circuits on left without calling predicate', () => {
+    const predicate = vi.fn(() => true);
+    left<string, string>('already failed').filter(predicate, 'unused');
+    expect(predicate).not.toHaveBeenCalled();
+  });
+});
+
+describe('onLeft', () => {
+  it('calls fn for left', () => {
+    const fn = vi.fn();
+    left<string, string>('oops').onLeft(fn);
+    expect(fn).toHaveBeenCalledWith('oops');
+  });
+
+  it('does not call fn for right', () => {
+    const fn = vi.fn();
+    right<string, string>('ok').onLeft(fn);
+    expect(fn).not.toHaveBeenCalled();
+  });
+});
+
+describe('onRight', () => {
+  it('calls fn for right', () => {
+    const fn = vi.fn();
+    right<string, string>('val').onRight(fn);
+    expect(fn).toHaveBeenCalledWith('val');
+  });
+
+  it('does not call fn for left', () => {
+    const fn = vi.fn();
+    left<string, string>('err').onRight(fn);
+    expect(fn).not.toHaveBeenCalled();
   });
 });
