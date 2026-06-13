@@ -137,3 +137,199 @@
 4. Configure auth for the React app
 5. Store API keys in secrets service
 6. Deploy and test from phone browser
+
+---
+
+## GCP Architecture — Deep Dive
+
+### Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                         GCP Project                                  │
+│                                                                     │
+│  ┌──────────────┐       ┌──────────────────┐      ┌─────────────┐  │
+│  │   Firebase   │       │    Cloud Run     │      │   Secret    │  │
+│  │   Hosting    │──────▶│  (Scala/Play)    │◀────▶│   Manager   │  │
+│  │  (React SPA) │       │                  │      │  (API keys) │  │
+│  └──────┬───────┘       └────────▲─────────┘      └─────────────┘  │
+│         │                        │                                  │
+│         │                        │                                  │
+│  ┌──────▼───────┐                │                                  │
+│  │   Firebase   │                │                                  │
+│  │     Auth     │────────────────┘                                  │
+│  │ (Google SSO) │   (ID token passed in Authorization header)       │
+│  └──────────────┘                                                   │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+        ▲
+        │ HTTPS
+        │
+   ┌────┴────┐
+   │  User   │
+   │ (Phone/ │
+   │ Browser)│
+   └─────────┘
+```
+
+### Component Breakdown
+
+| Component | GCP Service | Purpose |
+|-----------|-------------|---------|
+| Static web app | Firebase Hosting | Serves React SPA via global CDN |
+| Backend API | Cloud Run | Runs containerised Scala Play service, scales to zero |
+| Authentication | Firebase Auth | Google sign-in, issues ID tokens for API calls |
+| Secrets | Secret Manager | Stores encrypted API keys, accessed by Cloud Run at runtime |
+| Container registry | Artifact Registry | Stores Docker images for Cloud Run |
+
+### CLI Installation (macOS/Linux)
+
+```bash
+# 1. Install Google Cloud SDK
+curl -sSL https://sdk.cloud.google.com | bash
+exec -l $SHELL
+gcloud init
+
+# 2. Install Firebase CLI
+npm install -g firebase-tools
+
+# 3. Login to both
+gcloud auth login
+firebase login
+```
+
+### Project Setup
+
+```bash
+# Create GCP project
+gcloud projects create smeckles-app --name="Smeckles"
+gcloud config set project smeckles-app
+
+# Enable required APIs
+gcloud services enable \
+  run.googleapis.com \
+  artifactregistry.googleapis.com \
+  secretmanager.googleapis.com \
+  firebase.googleapis.com \
+  identitytoolkit.googleapis.com
+
+# Initialise Firebase in your project directory
+firebase init hosting
+# Select: dist/ as public directory, configure as SPA (yes), no GitHub deploys
+```
+
+### Deploy React SPA (Firebase Hosting)
+
+```bash
+# Build the React app
+npm run build
+
+# Deploy to Firebase Hosting
+firebase deploy --only hosting
+```
+
+Firebase Hosting serves from `https://smeckles-app.web.app` by default.
+
+### Deploy Scala/Play Backend (Cloud Run)
+
+```bash
+# Create Artifact Registry repo (once)
+gcloud artifacts repositories create smeckles-repo \
+  --repository-format=docker \
+  --location=europe-west1
+
+# Build and push Docker image
+gcloud builds submit \
+  --tag europe-west1-docker.pkg.dev/smeckles-app/smeckles-repo/smeckles-api:latest \
+  ./server
+
+# Deploy to Cloud Run
+gcloud run deploy smeckles-api \
+  --image europe-west1-docker.pkg.dev/smeckles-app/smeckles-repo/smeckles-api:latest \
+  --region europe-west1 \
+  --platform managed \
+  --allow-unauthenticated \
+  --set-secrets "API_KEY=smeckles-api-key:latest" \
+  --memory 512Mi \
+  --min-instances 0 \
+  --max-instances 1
+```
+
+The `--min-instances 0` ensures scale-to-zero. `--set-secrets` injects the secret as an env var.
+
+### Store API Keys (Secret Manager)
+
+```bash
+# Create a secret
+echo -n "your-private-api-key-value" | \
+  gcloud secrets create smeckles-api-key --data-file=-
+
+# Grant Cloud Run access to read it
+gcloud secrets add-iam-policy-binding smeckles-api-key \
+  --member="serviceAccount:$(gcloud run services describe smeckles-api --region=europe-west1 --format='value(spec.template.spec.serviceAccountName)')" \
+  --role="roles/secretmanager.secretAccessor"
+```
+
+### Firebase Auth (Google Sign-In)
+
+#### Enable Google provider
+
+```bash
+# Via Firebase console or CLI
+firebase auth:import  # for bulk users if needed
+
+# Enable Google sign-in in the Firebase Console:
+# Firebase Console > Authentication > Sign-in method > Google > Enable
+```
+
+#### React integration
+
+```bash
+npm install firebase
+```
+
+```tsx
+// src/firebase.ts
+import { initializeApp } from 'firebase/app';
+import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+
+const app = initializeApp({
+  apiKey: "YOUR_FIREBASE_API_KEY",
+  authDomain: "smeckles-app.firebaseapp.com",
+  projectId: "smeckles-app",
+});
+
+export const auth = getAuth(app);
+export const signIn = () => signInWithPopup(auth, new GoogleAuthProvider());
+```
+
+#### Passing token to backend
+
+```tsx
+const token = await auth.currentUser?.getIdToken();
+fetch('https://smeckles-api-xxxxx.run.app/api/lists', {
+  headers: { Authorization: `Bearer ${token}` }
+});
+```
+
+#### Verifying token in Scala/Play
+
+The Play backend verifies the Firebase ID token using Google's public keys:
+
+```scala
+// In a Play Action filter or controller
+val token = request.headers.get("Authorization").map(_.stripPrefix("Bearer "))
+// Verify with google-auth-library or firebase-admin SDK
+```
+
+### Summary of Commands
+
+| Task | Command |
+|------|---------|
+| Deploy frontend | `firebase deploy --only hosting` |
+| Build & push container | `gcloud builds submit --tag ...` |
+| Deploy backend | `gcloud run deploy smeckles-api ...` |
+| Create secret | `gcloud secrets create NAME --data-file=-` |
+| View logs | `gcloud run logs read smeckles-api --region=europe-west1` |
+| Check service URL | `gcloud run services describe smeckles-api --region=europe-west1 --format='value(status.url)'` |
