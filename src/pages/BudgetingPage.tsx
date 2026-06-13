@@ -41,7 +41,7 @@ const BudgetingPage: React.FC = () => {
     
     return (
         <IonPage>
-        <IonSplitPane contentId="budgeting-content" when={true}>
+        <IonSplitPane contentId="budgeting-content" when="md">
             <IonMenu contentId="budgeting-content">
                 <IonContent>
                     <IonList>

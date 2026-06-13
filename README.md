@@ -343,6 +343,13 @@ Tests use [Vitest](https://vitest.dev/) with [React Testing Library](https://tes
 
 Test files live alongside their components with a `.test.tsx` suffix (e.g. `src/pages/PersonsPage.test.tsx`).
 
+### E2E Testing (planned)
+
+End-to-end tests for viewport-dependent behaviour (e.g. responsive sidebar collapse) are not yet implemented. Technologies to explore:
+
+- [Playwright](https://playwright.dev/) — cross-browser, supports viewport resizing, recommended
+- [Cypress](https://www.cypress.io/) — mature alternative with good DX
+
 ## License
 
 MIT — see [LICENSE](./LICENSE).
