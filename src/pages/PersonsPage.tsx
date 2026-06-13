@@ -12,6 +12,8 @@ import {
   IonTitle,
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
+import { ValidationRules, withValidation } from '../validation/ValidationRule';
+import { fold } from '../util/Either';
 
 const _contentPadding = {
     '--padding-start': '1.5rem',
@@ -44,18 +46,33 @@ const removeBtn = {
   '--color': '#FFFFFF',
 } as React.CSSProperties;
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const rulesMap = {
+  _nonNullRule: (value: string) => !value ? "no leading/trailing whitespace" : null,
+  _validateEmailRule: (value: string) => EMAIL_REGEX.test(value) ? null :  "Please enter a valid email address",
+};
+const _validationRules: ValidationRules = {
+  rules: [
+    rulesMap._nonNullRule,
+    rulesMap._validateEmailRule
+  ]
+};
+
 
 const PersonsPage: React.FC = () => {
     const [persons, setPersons] = useState<string[]>([]);
     const [name, setName] = useState('');
+    const [emailError, setEmailError] = useState('');
     const history = useHistory(); // for view routing
 
-    const addPerson = () => {
-      const trimmed = name.trim();
-      if (!trimmed) return // empty input/whitespace 
-      setPersons(prev => [...prev, trimmed]);
-      setName('');
-    }
+     const addPerson = () => {
+      fold(
+        withValidation(name.trim(), _validationRules),
+        (error) => setEmailError(error),
+        (value) => { setPersons(prev => [...prev, value]); setName(''); setEmailError(''); }
+      );
+    };
 
     const removePerson = (index: number) => {
       setPersons(prev => [...prev.slice(0, index), ...prev.slice(index + 1)]);
@@ -72,10 +89,11 @@ const PersonsPage: React.FC = () => {
          </IonHeader>
           <IonContent style={_contentPadding} className="ion-text-center">
             <div className="ion-margin-top" style={{ marginTop: '10vh' }}>
-              <h2>Who are you?</h2>
+              <h2>New here?</h2>
               <form onSubmit={e => { e.preventDefault(); addPerson(); }}>
-                <IonInput placeholder="Enter your name" value={name} onIonInput={e => setName(e.detail.value ?? '')} />
+                <IonInput placeholder="Enter your email" value={name} onIonInput={e => setName(e.detail.value ?? '')} />
                 <IonButton expand="block" style={addBtn} onClick={addPerson}>Add</IonButton>
+                {emailError && <p style={{ color: '#E53935', fontSize: '0.85rem', margin: '0.5rem 0 0' }}>{emailError}</p>}
               </form>
             </div>
           </IonContent>
@@ -100,9 +118,10 @@ const PersonsPage: React.FC = () => {
             ))}
           </IonList>
           <form onSubmit={e => { e.preventDefault(); addPerson(); }} style={{ display: 'flex', gap: '0.5rem' }}>
-            <IonInput placeholder="Enter your name" value={name} onIonInput={e => setName(e.detail.value ?? '')} />
+            <IonInput type="email" placeholder="Enter your email" value={name} onIonInput={e => setName(e.detail.value ?? '')} />
             <IonButton onClick={addPerson} style={addBtn}>Add</IonButton>
           </form>
+          {emailError && <p style={{ color: '#E53935', fontSize: '0.85rem', margin: '0.5rem 0 0' }}>{emailError}</p>}
         </IonContent>
       </IonPage>  
     );

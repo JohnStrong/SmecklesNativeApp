@@ -80,22 +80,38 @@ npx cap open android
 
 > **Implementation:** [`src/pages/PersonsPage.tsx`](./src/pages/PersonsPage.tsx)
 
+##### Email Validation
+
+The input field requires a valid email address. Validation rules are applied on "Add" click:
+
+| Rule | Error message |
+|------|---------------|
+| Non-empty (after trim) | "no leading/trailing whitespace" |
+| Valid email pattern (`x@y.z`) | "Please enter a valid email address" |
+
+When validation fails:
+- The person is **not** added
+- A red error message (`#E53935`) appears below the Add button
+- The error clears once a valid email is successfully added
+
 ##### Condition 1: New to app (no persons exist)
 
 Centered layout, offset from top (~10vh). Single prompt with "Add" button.
 
 ```
 ┌───────────────────────────────┐
+│ Smeckles                      │
+├───────────────────────────────┤
 │                               │
 │                               │
-│        Who are you?           │
+│        New here?              │
 │                               │
 │     ┌───────────────────┐     │
-│     │ Enter your name   │     │
+│     │ Enter your email  │     │
 │     └───────────────────┘     │
 │                               │
 │     [ Add                  ]  │
-│                               │
+│     Please enter a valid...   │  ← only shown on error
 │                               │
 │                               │
 └───────────────────────────────┘
@@ -103,7 +119,7 @@ Centered layout, offset from top (~10vh). Single prompt with "Add" button.
 
 ##### Condition 2: Persons already exist
 
-Header with app title. List of persons with a remove (`-`) button per row. Input and "Add" button at the bottom.
+Header with app title. List of persons (emails) with a remove (`-`) button per row. Input and "Add" button at the bottom.
 
 ```
 ┌───────────────────────────────┐
@@ -111,18 +127,16 @@ Header with app title. List of persons with a remove (`-`) button per row. Input
 ├───────────────────────────────┤
 │                               │
 │ ┌───────────────────────────┐ │
-│ │ Alice                 [-] │ │
+│ │ alice@example.com     [-] │ │
 │ └───────────────────────────┘ │
 │ ┌───────────────────────────┐ │
-│ │ Bob                   [-] │ │
-│ └───────────────────────────┘ │
-│ ┌───────────────────────────┐ │
-│ │ Charlie               [-] │ │
+│ │ bob@example.com       [-] │ │
 │ └───────────────────────────┘ │
 │                               │
 │ ┌──────────────────┐  [Add]   │
-│ │ Enter your name  │          │
+│ │ Enter your email │          │
 │ └──────────────────┘          │
+│ Please enter a valid...       │  ← only shown on error
 └───────────────────────────────┘
 ```
 
