@@ -14,6 +14,7 @@ A personal budgeting companion that grows with you — from simple shopping list
 - [Deployment](#deployment)
 - [Design](#design)
 - [Testing](#testing)
+- [Contributing](#contributing)
 - [License](#license)
 
 ## Vision
@@ -349,6 +350,51 @@ End-to-end tests for viewport-dependent behaviour (e.g. responsive sidebar colla
 
 - [Playwright](https://playwright.dev/) — cross-browser, supports viewport resizing, recommended
 - [Cypress](https://www.cypress.io/) — mature alternative with good DX
+
+## Contributing
+
+### Conventional Commits
+
+This project follows the [Conventional Commits](https://www.conventionalcommits.org/) specification for all commit messages. This standard makes the commit history readable and enables automated tooling (changelogs, version bumps).
+
+#### Format
+
+```
+<type>(scope): short description
+
+optional body explaining what and why
+```
+
+#### Types
+
+| Type | Purpose |
+|------|---------|
+| `feat` | A new feature |
+| `fix` | A bug fix |
+| `docs` | Documentation only |
+| `refactor` | Code change that neither fixes nor adds |
+| `test` | Adding or updating tests |
+| `chore` | Build process, tooling, config |
+
+#### Examples from this project
+
+```
+feat(auth): Add Firebase Authentication with Google sign-in
+feat(validation): Add duplicate email check to Either chain
+fix(budgeting): Make sidebar responsive and collapse on mobile
+fix(validation): Update error messages and fix empty check predicate
+refactor(validation): Replace fold with chainable Either monad
+docs(hosting): Add GCP architecture diagram and setup guide
+test(auth): Add unit tests for AuthProvider, AuthGate, and firebaseAuth adapter
+chore: Upgrade Node to 20 via mise
+```
+
+#### Rules
+
+- Use imperative mood ("Add" not "Added")
+- Don't end the subject with a period
+- Keep the subject line under 50 characters
+- Use the body to explain what and why, not how
 
 ## License
 
