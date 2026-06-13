@@ -50,7 +50,7 @@
 
         fireEvent.click(screen.getByText('Add'));
 
-        expect(screen.getByText(/no leading\/trailing whitespace/i)).toBeInTheDocument();
+        expect(screen.getByText('cannot be empty - Please enter a valid email address')).toBeInTheDocument();
         expect(screen.getByText('New here?')).toBeInTheDocument();
     });
 
@@ -61,7 +61,7 @@
 
         fireEvent.click(screen.getByText('Add'));
 
-        expect(screen.getByText('Please enter a valid email address')).toBeInTheDocument();
+        expect(screen.getByText('invalid pattern - Please enter a valid email address')).toBeInTheDocument();
     });
 
     it('does not add person when email is invalid', () => {
@@ -80,12 +80,12 @@
         const input = screen.getByPlaceholderText('Enter your email');
         fireEvent(input, new CustomEvent('ionInput', { detail: { value: 'bad' } }));
         fireEvent.click(screen.getByText('Add'));
-        expect(screen.getByText('Please enter a valid email address')).toBeInTheDocument();
+        expect(screen.getByText('invalid pattern - Please enter a valid email address')).toBeInTheDocument();
 
         fireEvent(input, new CustomEvent('ionInput', { detail: { value: 'good@example.com' } }));
         fireEvent.click(screen.getByText('Add'));
 
-        expect(screen.queryByText('Please enter a valid email address')).not.toBeInTheDocument();
+        expect(screen.queryByText('invalid pattern - Please enter a valid email address')).not.toBeInTheDocument();
         expect(screen.getByText('good@example.com')).toBeInTheDocument();
     });
 
@@ -97,7 +97,7 @@
         fireEvent(input, new CustomEvent('ionInput', { detail: { value: 'invalid' } }));
         fireEvent.click(screen.getAllByText('Add')[0]);
 
-        expect(screen.getByText('Please enter a valid email address')).toBeInTheDocument();
+        expect(screen.getByText('invalid pattern - Please enter a valid email address')).toBeInTheDocument();
     });
 
     const _fireAddPersonEvent = (email: string) => {

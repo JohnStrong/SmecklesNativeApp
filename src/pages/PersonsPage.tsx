@@ -12,7 +12,7 @@ import {
   IonTitle,
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
-import { fold, right } from '../util/Either';
+import { right } from '../util/Either';
 
 const _contentPadding = {
     '--padding-start': '1.5rem',
@@ -56,8 +56,8 @@ const PersonsPage: React.FC = () => {
 
      const addPerson = () => {
       right<string, string>(name.trim())
-        .filter((value: string) => !value,  "no leading/trailing whitespace")
-        .filter((value: string) =>  EMAIL_REGEX.test(value), "Please enter a valid email address")
+        .filter((value: string) => value.length > 0,  "cannot be empty - Please enter a valid email address")
+        .filter((value: string) =>  EMAIL_REGEX.test(value), "invalid pattern - Please enter a valid email address")
         .onLeft((error) => setEmailError(error))
         .onRight((value) => { setPersons(prev => [...prev, value]); setName(''); setEmailError(''); });
      };
