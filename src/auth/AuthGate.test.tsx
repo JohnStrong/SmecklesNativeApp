@@ -1,18 +1,21 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { AuthProvider } from './AuthProvider';
 import AuthGate from './AuthGate';
-import { AuthAdapter } from './types';
+import { AuthAdapter, AuthUser } from './types';
 
 vi.mock('../config/appConfig', () => ({
   default: { auth: { allowList: ['allowed@test.com'] } },
 }));
 
-const mockAdapter = (user = null): AuthAdapter => ({
-  onAuthChanged: (cb) => { cb(user); return () => {}; },
-  signIn: vi.fn().mockResolvedValue(undefined),
-  signOut: vi.fn().mockResolvedValue(undefined),
-});
+const mockAdapter = (user: AuthUser | null = null): AuthAdapter => {
+  let cb: ((u: AuthUser | null) => void) | null = null;
+  return {
+    onAuthChanged: (callback) => { cb = callback; cb(user); return () => {}; },
+    signIn: vi.fn().mockResolvedValue(undefined),
+    signOut: vi.fn().mockImplementation(() => { cb?.(null); return Promise.resolve(); }),
+  };
+};
 
 describe('AuthGate', () => {
   it('shows sign-in button when not authenticated', () => {
@@ -28,15 +31,16 @@ describe('AuthGate', () => {
   it('renders children when authenticated with allowed email', () => {
     const user = { email: 'allowed@test.com', displayName: 'A', token: () => Promise.resolve('tok') };
     render(
-      <AuthProvider adapter={mockAdapter(user as any)}>
+      <AuthProvider adapter={mockAdapter(user)}>
         <AuthGate><span>app content</span></AuthGate>
       </AuthProvider>
     );
     expect(screen.getByText('app content')).toBeInTheDocument();
   });
 
-  it('shows access denied and calls signOut for disallowed email', () => {
-    const adapter = mockAdapter({ email: 'hacker@evil.com', displayName: 'H', token: () => Promise.resolve('tok') } as any);
+  it('shows access denied for disallowed email', () => {
+    const user = { email: 'hacker@evil.com', displayName: 'H', token: () => Promise.resolve('tok') };
+    const adapter = mockAdapter(user);
     render(
       <AuthProvider adapter={adapter}>
         <AuthGate><span>app content</span></AuthGate>
