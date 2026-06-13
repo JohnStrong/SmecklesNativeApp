@@ -78,3 +78,34 @@ import AuthGate from './auth/AuthGate';
 1. Create a new adapter in `src/auth/adapters/` implementing `AuthAdapter`
 2. Change the import in `App.tsx`
 3. Done — no other files change
+
+## Email Allow List
+
+Only emails listed in the allow list can use the app. Anyone else who signs in gets immediately signed out and sees "Access denied".
+
+### How it works
+
+- User signs in with Google (popup)
+- `AuthGate` checks if `user.email` is in `appConfig.auth.allowList`
+  - **Match** → app renders normally
+  - **No match** → `signOut()` is called, "Access denied" is shown
+- The allow list lives in `src/config/appConfig.ts`:
+
+```ts
+const appConfig = {
+  auth: {
+    allowList: ['johnstrongdublin@gmail.com'],
+  },
+};
+```
+
+### Adding a new allowed user
+
+Add their email to the `allowList` array in `src/config/appConfig.ts`, rebuild, and redeploy.
+
+### Relevant code
+
+| File | What it does |
+|------|-------------|
+| `src/config/appConfig.ts` | Defines the allow list |
+| `src/auth/AuthGate.tsx` | Checks email against allow list, signs out if denied |
