@@ -86,8 +86,9 @@ The input field requires a valid email address. Validation rules are applied on 
 
 | Rule | Error message |
 |------|---------------|
-| Non-empty (after trim) | "no leading/trailing whitespace" |
-| Valid email pattern (`x@y.z`) | "Please enter a valid email address" |
+| Non-empty (after trim) | "cannot be empty - Please enter a valid email address" |
+| Valid email pattern (`x@y.z`) | "invalid pattern - Please enter a valid email address" |
+| No duplicate emails | "email already exists" |
 
 When validation fails:
 - The person is **not** added
